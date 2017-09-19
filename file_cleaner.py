@@ -15,6 +15,12 @@ def deleteFiles(folder, test, logger):
     nefs = Set()
     raw_folder = ''
     logger.info('Checking for missing JPG in folder: ' + folder)
+    folder = os.path.expanduser(folder)
+
+    # add a trailing '/' if it is not present
+    if folder.endswith('/')==False:
+        folder += '/'
+
     if os.path.isdir(folder) == False:
         logger.error(folder + ' is not a valid directory')
     else:
@@ -37,12 +43,16 @@ def deleteFiles(folder, test, logger):
     # now find the missing files
     missing_photos = nefs - jpgs
     for missing_raw_file in missing_photos:
-        logger.debug(missing_raw_file + '.NEF: Removed')
-        if test == False:
-            os.remove(folder + raw_folder + missing_raw_file + '.NEF')
+        raw_file = folder + raw_folder + missing_raw_file + '.NEF'
+        if os.path.isfile(raw_file + '.NEF') == True:
+            logger.debug(raw_file + ': Removed')
+            if test == False:
+                os.remove(raw_file)
+        else:
+            logger.error(raw_file + ': File not found.')
 
 if __name__ == "__main__":
-    FORMAT = '%(asctime)-15s %(message)s'
+    FORMAT = '%(asctime)s %(message)s'
     logging.basicConfig(format=FORMAT)
     #logging.basicConfig()
     logger = logging.getLogger('filecleaner')
